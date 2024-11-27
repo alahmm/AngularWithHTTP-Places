@@ -16,6 +16,7 @@ import {map} from "rxjs";
 export class AvailablePlacesComponent implements OnInit {
   places = signal<Place[] | undefined>(undefined);
   isFetching = signal(false);
+  error = signal('');
   private httpClient = inject(HttpClient);
   private destroyRef = inject(DestroyRef);
 
@@ -28,6 +29,11 @@ export class AvailablePlacesComponent implements OnInit {
       .subscribe({
         next: (places) => {
           this.places.set(places);
+        },
+        error: (error) => {
+          // this.error.set(error.message)
+          console.log(error);
+          this.error.set("Something went wrong when fetching!")
         },
         complete: () => {//the complete is important to guarantee that the request is done
           this.isFetching.set(false);
