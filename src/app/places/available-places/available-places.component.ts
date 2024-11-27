@@ -21,7 +21,7 @@ export class AvailablePlacesComponent implements OnInit {
     const subscription = this.httpClient.get<{places: Place[]}>('http://localhost:3000/places')
       .subscribe({
       next: (data) => {
-        console.log(data);
+        console.log(data.places);
         // console.log(response.body?.places);
       }
     });
