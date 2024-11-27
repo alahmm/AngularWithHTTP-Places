@@ -20,16 +20,25 @@ export class PlacesService {
   loadUserPlaces() {
     return this.fetchPlaces('http://localhost:3000/user-places', "Something went wrong when fetching your favorite places!")
       .pipe(tap({
-        next: (userPlaces) => this.userPlaces.set(userPlaces),
+        next: (userPlaces) => this.userPlaces.set(userPlaces),//like subscription to set this data
       }))
   }
 
   addPlaceToUserPlaces(place: Place) {
-    this.userPlaces.update(prevPlaces => [...prevPlaces, place]);//update automatically user places
+    const prevPlaces = this.userPlaces();
 
+    if(!prevPlaces.some((p) => p.id === place.id)) {
+      this.userPlaces.set([...prevPlaces, place]);//update automatically user places
+    }
     return this.httpClient.put('http://localhost:3000/user-places', {
       placeId: place.id,
-    });
+    })
+      .pipe(
+        catchError(err => {
+          this.userPlaces.set(prevPlaces); //rollback to previous places
+          return throwError(() => new Error('failed to store selected place'));
+        })
+      )
   }
 
   removeUserPlace(place: Place) {}
